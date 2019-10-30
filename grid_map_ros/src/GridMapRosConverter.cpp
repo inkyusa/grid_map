@@ -276,8 +276,14 @@ void GridMapRosConverter::toOccupancyGrid(const grid_map::GridMap& gridMap,
 
   for (GridMapIterator iterator(gridMap); !iterator.isPastEnd(); ++iterator) {
     float value = (gridMap.at(layer, *iterator) - dataMin) / (dataMax - dataMin);
-    if (isnan(value))
-      value = -1;
+    if (isnan(value)) {
+      Position position;
+      gridMap.getPosition(*iterator,position);
+      value=gridMap.atPosition(layer,position,InterpolationMethods::INTER_NEAREST);
+      //value=gridMap.atPosition(layer,position,InterpolationMethods::INTER_LINEAR);
+      
+      //value = -1;
+    }
     else
       value = cellMin + min(max(0.0f, value), 1.0f) * cellRange;
     size_t index = getLinearIndexFromIndex(iterator.getUnwrappedIndex(), gridMap.getSize(), false);
